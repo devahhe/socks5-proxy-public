@@ -1,6 +1,6 @@
 const net = require('net');
 
-const LISTEN_PORT = process.env.PORT || 10080; // Render assigns this dynamically
+const LISTEN_PORT = process.env.PORT || 10080;
 const DANTE_HOST = '127.0.0.1';
 const DANTE_PORT = 1080;
 
@@ -22,5 +22,5 @@ const server = net.createServer(clientSock => {
 });
 
 server.listen(LISTEN_PORT, '0.0.0.0', () => {
-  console.log(`SOCKS5 bridge listening on ${LISTEN_PORT}`);
+  console.log(`✅ NodeJS SOCKS5 Bridge running on Render port ${LISTEN_PORT}`);
 });
