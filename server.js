@@ -1,17 +1,15 @@
-const http = require("http");
-const { spawn } = require("child_process");
+const http = require('http');
+const { exec } = require('child_process');
 
+// Render requires a visible HTTP server on this port
 const port = process.env.PORT || 10080;
 
-const server = http.createServer((_, res) => {
+// Start Dante on SOCKS5 port 1080
+exec('sockd -f /etc/sockd.conf');
+
+http.createServer((req, res) => {
   res.writeHead(200);
-  res.end("SOCKS5 proxy is running\n");
-});
-
-server.listen(port, () => {
+  res.end('SOCKS5 Proxy running on port 1080\n');
+}).listen(port, () => {
   console.log(`HTTP server listening on port ${port}`);
-
-  const sockd = spawn("sockd", ["-f", "/etc/sockd.conf"]);
-  sockd.stdout.on("data", (data) => console.log(data.toString()));
-  sockd.stderr.on("data", (data) => console.error(data.toString()));
 });
