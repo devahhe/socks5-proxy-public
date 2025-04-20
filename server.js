@@ -1,15 +1,26 @@
-const http = require('http');
-const { exec } = require('child_process');
+const net = require('net');
+const LISTEN_PORT = process.env.PORT || 1080;
+const DANTE_HOST = '127.0.0.1';
+const DANTE_PORT = 1080;
 
-// Render requires a visible HTTP server on this port
-const port = process.env.PORT || 10080;
+const server = net.createServer(clientSock => {
+  // Connect to Dante server for each incoming connection
+  const proxySock = net.connect(DANTE_PORT, DANTE_HOST, () => {
+    // Tunnel data in both directions
+    clientSock.pipe(proxySock);
+    proxySock.pipe(clientSock);
+  });
+  // Handle errors to prevent crashes
+  proxySock.on('error', err => {
+    console.error('Dante socket error:', err.message);
+    clientSock.destroy();
+  });
+  clientSock.on('error', err => {
+    console.error('Client socket error:', err.message);
+    proxySock.destroy();
+  });
+});
 
-// Start Dante on SOCKS5 port 1080
-exec('sockd -f /etc/sockd.conf');
-
-http.createServer((req, res) => {
-  res.writeHead(200);
-  res.end('SOCKS5 Proxy running on port 1080\n');
-}).listen(port, () => {
-  console.log(`HTTP server listening on port ${port}`);
+server.listen(LISTEN_PORT, '0.0.0.0', () => {
+  console.log(`SOCKS5 proxy listening on port ${LISTEN_PORT}`);
 });
