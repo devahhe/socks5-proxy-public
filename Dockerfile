@@ -26,7 +26,8 @@ WORKDIR /app
 # Start Dante, wait for it to bind, then launch Node SOCKS5 bridge
 CMD ["sh", "-c", "\
   danted -f /etc/sockd.conf & \
-  echo 'Waiting for Dante on port 1080...'; \
+  tail -f /var/log/sockd.log & \
+  echo 'Waiting for Dante to listen on port 1080...'; \
   while ! nc -z 127.0.0.1 1080; do sleep 0.2; done; \
-  echo 'Dante ready. Starting NodeJS bridge on $PORT...'; \
+  echo 'Dante is ready. Launching NodeJS proxy...'; \
   node server.js"]
