@@ -1,17 +1,13 @@
-logoutput: stderr
-internal: 0.0.0.0 port = 1080
-external: eth0
+const { spawn } = require('child_process');
 
-method: username none
-user.notprivileged: nobody
+const sockd = spawn('sockd', ['-f', '/etc/sockd.conf']);
 
-client pass {
-  from: 0.0.0.0/0 to: 0.0.0.0/0
-  log: connect disconnect error
-}
-
-socks pass {
-  from: 0.0.0.0/0 to: 0.0.0.0/0
-  protocol: tcp udp
-  log: connect disconnect error
-}
+sockd.stdout.on('data', data => {
+  console.log(`[SOCKD STDOUT]: ${data}`);
+});
+sockd.stderr.on('data', data => {
+  console.error(`[SOCKD STDERR]: ${data}`);
+});
+sockd.on('close', code => {
+  console.log(`sockd exited with code ${code}`);
+});
